@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product List | Dashboard</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="user.css">
+<style>
+  /* Product Grid */
+  .product-filters { display: flex; gap: 10px; margin-bottom: 15px; }
+  .product-filters input, .product-filters select { padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; flex: 1; }
+
+  .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+  .product-card { background-color: #202528; padding: 10px; border-radius: 10px; color: #fff; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .product-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+  .product-card h3 { font-size: 16px; margin: 5px 0; }
+  .product-card p { font-size: 14px; margin: 2px 0; color: #ccc; }
+  .product-actions { display: flex; gap: 5px; margin-top: 8px; }
+  .product-actions button { flex: 1; padding: 6px 0; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; color: #fff; }
+  .btn-view { background-color: #4cafef; }
+  .btn-edit { background-color: #ffa726; }
+  .btn-delete { background-color: #f44336; }
+  .btn-view:hover { background-color: #3a8ed6; }
+  .btn-edit:hover { background-color: #e68a00; }
+  .btn-delete:hover { background-color: #c62828; }
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- Sidebar -->
+  <aside>
+    <div class="toggle">
+      <div class="logo"><img src="images/logo.png"><h2>Asmr<span class="danger">Prog</span></h2></div>
+      <div class="close" id="close-btn"><span class="material-icons-sharp">close</span></div>
+    </div>
+    <div class="sidebar">
+      <a href="index.html"><span class="material-icons-sharp">dashboard</span><h3>Dashboard</h3></a>
+      <a href="users.html"><span class="material-icons-sharp">person_outline</span><h3>Users</h3></a>
+      <a href="orders.html"><span class="material-icons-sharp">receipt_long</span><h3>Orders</h3></a>
+      <a href="stock.html"><span class="material-icons-sharp">inventory</span><h3>Stock</h3></a>
+      <a href="product-list.html" class="active"><span class="material-icons-sharp">list</span><h3>Product List</h3></a>
+      <a href="#"><span class="material-icons-sharp">insights</span><h3>Analytics</h3></a>
+      <a href="#"><span class="material-icons-sharp">settings</span><h3>Settings</h3></a>
+      <a href="#"><span class="material-icons-sharp">logout</span><h3>Logout</h3></a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main>
+    <h1>Product List</h1>
+
+    <div class="users-header">
+      <h2>Clothes Inventory</h2>
+      <button class="btn-add" onclick="openAddProductModal()"><span class="material-icons-sharp">add</span> Add Product</button>
+    </div>
+
+    <!-- Filters -->
+    <div class="product-filters">
+      <input type="text" id="searchProductInput" placeholder="Search products..." onkeyup="filterProducts()">
+      <select id="categoryFilter" onchange="filterProducts()">
+        <option value="">All Categories</option>
+        <option value="Shirts">Shirts</option>
+        <option value="Pants">Pants</option>
+        <option value="Shoes">Shoes</option>
+      </select>
+    </div>
+
+    <!-- Product Grid (empty, ready for your design) -->
+    <div class="product-grid" id="productGrid">
+      <!-- Product cards will be added here -->
+    </div>
+  </main>
+
+  <!-- Right Section -->
+  <div class="right-section">
+    <div class="nav">
+      <button id="menu-btn"><span class="material-icons-sharp">menu</span></button>
+      <div class="dark-mode"><span class="material-icons-sharp active">light_mode</span><span class="material-icons-sharp">dark_mode</span></div>
+      <div class="profile"><div class="info"><p>Hey, <b>Reza</b></p><small class="text-muted">Admin</small></div><div class="profile-photo"><img src="images/profile-1.jpg"></div></div>
+    </div>
+    <div class="user-clock"><h2 id="clock-time">00:00:00</h2><p id="clock-date"></p><canvas id="analog-clock" width="180" height="180"></canvas></div>
+    <div class="reminders">
+      <div class="header"><h2>Reminders</h2><span class="material-icons-sharp">notifications_none</span></div>
+      <div class="notification">
+        <div class="icon"><span class="material-icons-sharp">volume_up</span></div>
+        <div class="content"><div class="info"><h3>Workshop</h3><small class="text_muted">08:00 AM - 12:00 PM</small></div><span class="material-icons-sharp">more_vert</span></div>
+      </div>
+      <div class="notification deactive">
+        <div class="icon"><span class="material-icons-sharp">edit</span></div>
+        <div class="content"><div class="info"><h3>Workshop</h3><small class="text_muted">08:00 AM - 12:00 PM</small></div><span class="material-icons-sharp">more_vert</span></div>
+      </div>
+      <div class="notification add-reminder"><div><span class="material-icons-sharp">add</span><h3>Add Reminder</h3></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function deleteProduct(btn) {
+    if(confirm('Are you sure you want to delete this product?')) {
+      btn.closest('.product-card').remove();
+    }
+  }
+
+  function filterProducts() {
+    const searchValue = document.getElementById('searchProductInput').value.toLowerCase();
+    const categoryValue = document.getElementById('categoryFilter').value;
+    const products = document.querySelectorAll('.product-card');
+    products.forEach(product => {
+      const name = product.dataset.name.toLowerCase();
+      const category = product.dataset.category;
+      const match = name.includes(searchValue) && (categoryValue === '' || category === categoryValue);
+      product.style.display = match ? '' : 'none';
+    });
+  }
+
+  function openAddProductModal() {
+    alert('You can implement an "Add Product" modal here!');
+  }
+</script>
+
+<script src="index2.js"></script>
+</body>
+</html>
